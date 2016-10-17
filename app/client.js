@@ -1,67 +1,130 @@
+import request from 'superagent';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, applyMiddleware } from 'redux';
-import { Provider } from 'react-redux';
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
 import ioClient from './helpers/ioClient';
 
-import reducer from './redux/reducer';
-import clientMiddleware from './redux/clientMiddleware';
-import {permitJoining} from './redux/modules/navBar';
-import {devIncoming, devStatus, attrsChange} from './redux/modules/cardBlock';
-import {notice, requestClose} from './redux/modules/noticeBar';
-
 import NavBar from './components/NavBar/NavBar';
 import CardBlock from './components/CardBlock/CardBlock';
-import NoticeBar from './components/NoticeBar/NoticeBar';
 
-/*********************************************/
-/* client app                                */
-/*********************************************/
-var store = createStore(reducer, applyMiddleware(clientMiddleware)),
-    title = 'ble-shepherd';
+var title = 'ble-shepherd',
+    permitJoinTime = 60;
 
 ioClient.start('http://' + window.location.hostname + ':3030');
 
-ioClient.on('permitJoining', function (msg) {
-    // msg = { timeLeft }
-    store.dispatch(permitJoining(msg.timeLeft));
-});
-
-ioClient.on('devIncoming', function (msg) {
-    // msg =  { dev}
-    store.dispatch(devIncoming(msg.dev));  
-});
-
-ioClient.on('devStatus', function (msg) {
-    // msg = { permAddr, status }
-    store.dispatch(devStatus(msg.permAddr, msg.status));
-});
-
-ioClient.on('attrsChange', function (msg) {
-    // msg = { permAddr, gad } 
-    store.dispatch(attrsChange(msg.permAddr, msg.gad));
-});
-
-ioClient.on('toast', function (msg) {
-    // msg = { msg }
-    store.dispatch(notice(true, msg.msg));
-});
+/*********************************************/
+/* Private Functions                         */
+/*********************************************/
+function ioConnectedDelay (callback) {
+    if (ioClient._connected) {
+        callback();
+    } else {
+        setTimeout(function () {
+            ioConnectedDelay(callback);
+        }, 1000);
+    }
+}
 
 /*********************************************/
 /* App component                             */
 /*********************************************/
 var App = React.createClass({
+    getInitialState: function () {
+        return {
+            devs: {},
+            timeLeft: 0
+        };
+    },
+
+    componentDidMount: function () {
+        var self = this;
+
+        ioConnectedDelay(function () {
+            ioClient.sendReq('getDevs', {}, function (err, data) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    self.setState({
+                        devs: data
+                    });
+                } 
+            });
+        });
+
+        ioClient.on('permitJoining', function (msg) {
+            // msg = { timeLeft }
+            self.setState({
+                timeLeft: msg.timeLeft
+            });
+        });
+
+        ioClient.on('devIncoming', function (msg) {
+            // msg =  { dev }
+            self.setState({
+                devs: { ...self.state.devs, [msg.dev.permAddr]: msg.dev}
+            });
+        });
+
+        ioClient.on('devStatus', function (msg) {
+            // msg = { permAddr, status }
+            self.setState({
+                devs: {
+                    ...self.state.devs,
+                    [msg.permAddr]: {
+                        ...self.state.devs[msg.permAddr],
+                        status: msg.status
+                    }
+                }
+            });
+        });
+
+        ioClient.on('attrsChange', function (msg) {
+            // msg = { permAddr, gad } 
+            self.setState({
+                devs: {
+                    ...self.state.devs,
+                    [msg.permAddr]: {
+                        ...self.state.devs[msg.permAddr],
+                        gads: {
+                            ...self.state.devs[msg.permAddr].gads,
+                            [msg.gad.auxId]: msg.gad
+                        }
+                    }
+                }
+            });
+        });
+    },
+
+    onPermitCallback: function () {
+        ioConnectedDelay(function () {
+            ioClient.sendReq('permitJoin', { time: permitJoinTime }, function (err, data) {
+                if (err) {
+                    console.log(err);
+                }
+            });
+        });
+    },
+
+    onWriteCallback: function (permAddr, auxId, value) {
+        return function () {
+            ioConnectedDelay(function () {
+                ioClient.sendReq('write', { permAddr: permAddr, auxId: auxId, value: value }, function (err, data) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            });
+        };
+    },
+
     render: function () {
         return (
             <MuiThemeProvider>
                 <div>
-                    <NavBar title={this.props.title} />
-                    <CardBlock />
-                    <NoticeBar />
+                    <NavBar title={this.props.title} timeLeft={this.state.timeLeft} onClick={this.onPermitCallback} />
+                    <CardBlock devs={this.state.devs} onClick={this.onWriteCallback}/>
                 </div>     
             </MuiThemeProvider>
         );
@@ -71,9 +134,4 @@ var App = React.createClass({
 /*********************************************/
 /* render                                    */
 /*********************************************/
-ReactDOM.render(
-    <Provider store={store}>
-        <App title={title} />
-    </Provider>, 
-    document.getElementById('root')
-);
+ReactDOM.render(<App title={title} />, document.getElementById('root'));

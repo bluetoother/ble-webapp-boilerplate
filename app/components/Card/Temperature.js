@@ -5,10 +5,8 @@ var bgColor = "#F5D76E",
 
 const Temperature = React.createClass({
     propTypes: {
-        permAddr: PropTypes.string.isRequired,
         enable: PropTypes.bool.isRequired,
-        auxId: PropTypes.string.isRequired,
-        temp: PropTypes.number.isRequired,
+        temp: PropTypes.number.isRequired
     },
     render: function() {
         let enable = !!this.props.enable;
@@ -36,12 +34,5 @@ const Temperature = React.createClass({
         );
     }
 });
-
-Temperature.propTypes = {
-    permAddr: PropTypes.string.isRequired,
-    enable: PropTypes.bool.isRequired,
-    auxId: PropTypes.string.isRequired,
-    temp: PropTypes.number.isRequired,
-}
 
 export default Temperature
