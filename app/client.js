@@ -55,68 +55,31 @@ var App = React.createClass({
 
         ioClient.on('permitJoining', function (msg) {
             // msg = { timeLeft }
-            self.setState({
-                timeLeft: msg.timeLeft
-            });
+            // [TODO]
         });
 
         ioClient.on('devIncoming', function (msg) {
             // msg =  { dev }
-            self.setState({
-                devs: { ...self.state.devs, [msg.dev.permAddr]: msg.dev}
-            });
+            // [TODO]
         });
 
         ioClient.on('devStatus', function (msg) {
             // msg = { permAddr, status }
-            self.setState({
-                devs: {
-                    ...self.state.devs,
-                    [msg.permAddr]: {
-                        ...self.state.devs[msg.permAddr],
-                        status: msg.status
-                    }
-                }
-            });
+            // [TODO]
         });
 
         ioClient.on('attrsChange', function (msg) {
             // msg = { permAddr, gad } 
-            self.setState({
-                devs: {
-                    ...self.state.devs,
-                    [msg.permAddr]: {
-                        ...self.state.devs[msg.permAddr],
-                        gads: {
-                            ...self.state.devs[msg.permAddr].gads,
-                            [msg.gad.auxId]: msg.gad
-                        }
-                    }
-                }
-            });
+            // [TODO]
         });
     },
 
     onPermitCallback: function () {
-        ioConnectedDelay(function () {
-            ioClient.sendReq('permitJoin', { time: permitJoinTime }, function (err, data) {
-                if (err) {
-                    console.log(err);
-                }
-            });
-        });
+        // [TODO]
     },
 
     onWriteCallback: function (permAddr, auxId, value) {
-        return function () {
-            ioConnectedDelay(function () {
-                ioClient.sendReq('write', { permAddr: permAddr, auxId: auxId, value: value }, function (err, data) {
-                    if (err) {
-                        console.log(err);
-                    }
-                });
-            });
-        };
+        // [TODO]
     },
 
     render: function () {

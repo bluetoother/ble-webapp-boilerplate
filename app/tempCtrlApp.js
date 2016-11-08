@@ -1,28 +1,17 @@
-var BleShepherd = require('ble-shepherd');
 var sivannRelayPlugin = require('bshep-plugin-sivann-relay');
 var sivannWeatherPlugin = require('bshep-plugin-sivann-weatherstation');
-
-var central = new BleShepherd('noble'); 
-
-central.support('sivannRelay', sivannRelayPlugin);
-central.support('sivannWeather', sivannWeatherPlugin);
-
-// event listeners
-central.on('ready', bleApp);
-
-central.start(); 
-
 
 var relay, weatherStation;
 
 function bleApp () {
     var blocker = central.blocker;
+
+    central.support('sivannRelay', sivannRelayPlugin);
+    central.support('sivannWeather', sivannWeatherPlugin);
     
     blocker.enable('white');
     blocker.unblock('0xd05fb820ceef');
     blocker.unblock('0x20c38ff19403');
-
-    central.permitJoin(60);
 
     central.on('ind', function (msg) {
         var dev = msg.periph;

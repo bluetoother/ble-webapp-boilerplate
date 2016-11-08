@@ -1,3 +1,3 @@
 export Temperature from './Temperature';
-export Fan from './Fan';
+export Plug from './Plug';
 export Weather from './Weather';

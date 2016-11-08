@@ -7,18 +7,21 @@ var BleShepherd = require('ble-shepherd');
 var sivannRelayPlugin = require('bshep-plugin-sivann-relay');
 var sivannWeatherPlugin = require('bshep-plugin-sivann-weatherstation');
 
-var ioServer = require('./helpers/ioServer');
+// 使用 ioServer 作為與 Web Client 溝通的介面
+// [TODO]
+// 溫控系統的應用程式
+// [TODO]
 
-var central = new BleShepherd('noble'); 
-var server = http.createServer();
+// 建立 central
+// [TODO]
+// 建立 HTTP Server
+// [TODO]
 
 server.listen(3030);
-ioServer.start(server);
 
-central.support('sivannRelay', sivannRelayPlugin);
-central.support('sivannWeather', sivannWeatherPlugin);
+// 啟動 ioServer
+// [TODO]
 
-var relay, weatherStation;
 
 function serverApp () {
     // show Welcome Msg               
@@ -29,35 +32,15 @@ function serverApp () {
 
     // register Req handler
     ioServer.regReqHdlr('getDevs', function (args, cb) { 
-        var devs = {};
-
-        _.forEach(central.list(), function (devInfo) {
-            devs[devInfo.addr] = cookRawDev(central.find(devInfo.addr));
-        });
-
-        cb(null, devs);
+        // [TODO]
     });
 
     ioServer.regReqHdlr('permitJoin', function (args, cb) { 
-        central.permitJoin(args.time);
-        cb(null, args);
+        // [TODO]
     });
 
     ioServer.regReqHdlr('write', function (args, cb) { 
-        var dev = central.find(args.permAddr),
-            uuids = args.auxId.split('.'),
-            sid = uuids[0],
-            cid = _.parseInt(uuids[2]),
-            gad = dev.dump(sid, cid);
-
-        gad.value[getGadProp(gad).valueName] = args.value;
-
-        dev.write(sid, cid, gad.value, function (err) {
-            if (err)
-                cb(err);
-            else
-                cb(null, args.value);
-        });
+        // [TODO]
     });
 
     // start ble-shepherd
@@ -70,111 +53,22 @@ function serverApp () {
 
     // event listeners
     central.on('ready', function () {
-        bleApp();
-        readyInd();
+        // [TODO]
     });
 
     central.on('permitJoining', function (timeLeft) {
-        permitJoiningInd(timeLeft);
+        // [TODO]
     });
 
     central.on('error', function (err) {
-        errorInd(err.message);
+        // [TODO]
     });
 
     central.on('ind', function (msg) {
-        var dev = msg.periph;
-
-        switch (msg.type) {
-            /*** devIncoming      ***/
-            case 'devIncoming':
-                devIncomingInd(cookRawDev(dev));
-                break;
-
-            /*** devStatus        ***/
-            case 'devStatus':
-                devStatusInd(dev.addr, msg.data);
-                break;
-
-            /*** attrsChange      ***/
-            case 'attChange':
-                var sid = msg.data.sid,
-                    cid = msg.data.cid,
-                    gad = dev.dump(sid.uuid, cid.handle),
-                    gadInfo = getGadProp(gad);
-
-                if (!gadInfo) return;
-         
-                valueName = gadInfo.valueName;
-
-                if (!_.isNil(valueName) && !_.isNil(msg.data.value[valueName])) 
-                    attrsChangeInd(dev.addr, cookRawGad(gad, sid.uuid));
-                
-                break;
-        }
+        // [TODO]
     });
 
     
-}
-
-function bleApp () {
-    var blocker = central.blocker;
-    
-    blocker.enable('white');
-    blocker.unblock('0xd05fb820ceef');
-    blocker.unblock('0x20c38ff19403');
-
-    // central.permitJoin(60);
-
-    central.on('ind', function (msg) {
-        var dev = msg.periph;
-        
-        switch (msg.type) {
-            case 'devIncoming':
-                // 裝置加入網路
-                // 你可以開始操作入網裝置        
-                if (dev.name === 'sivannRelay') {
-                	relay = dev;
-                }
-
-                if (dev.name === 'sivannWeather') {
-                    // 將 weather station 裝置指定到 weatherStation 變數
-                    weatherStation = dev;
-                    
-                    // 當 weather station 入網時，讀取當下溫度值
-               		weatherStation.read('0xbb80', '0xcc07', function (err, data) {
-                        console.log('Temperature value: ' + data.sensorValue);
-                    });
-
-             		// 讓 weather station 定時回報溫度值
-                    weatherStation.configNotify('0xbb80', '0xcc07', true, function (err) {
-                        console.log('setting success');
-                    });
-                    
-             		// 為回報溫度的 characteristic 註冊一隻處理函式
-                    weatherStation.onNotified('0xbb80', '0xcc07', tempChangedHdlr); 
-                }
-                break;
-        }
-    });
-}
-
-function tempChangedHdlr (data) {
-    // 若 relay 尚未入網，則不做任何事
-    if (!relay)
-        return;
-
-    var relayValue = relay.dump('0xbb40', '0xcc0e').value;
-
-    if (data.sensorValue > 28) {
-        // 當溫度過高，則開啟 relay
-        relayValue.onOff = true;
-        relay.write('0xbb40', '0xcc0e', relayValue);
-    } else if (data.sensorValue < 26) {
-        // 當溫度過低，則開啟 relay
-        relayValue.onOff = false;
-        relay.write('0xbb40', '0xcc0e', relayValue);
-    }
 }
 
 
@@ -230,46 +124,6 @@ function setLeaveMsg() {
 
     process.on('SIGINT', showLeaveMessage);
 }
-
-/**********************************/
-/* Indication funciton            */
-/**********************************/
-function readyInd () {
-    ioServer.sendInd('ready', {});
-    console.log(chalk.green('[         ready ] '));
-}
-
-function permitJoiningInd (timeLeft) {
-    ioServer.sendInd('permitJoining', { timeLeft: timeLeft });
-    console.log(chalk.green('[ permitJoining ] ') + timeLeft + ' sec');
-}
-
-function errorInd (msg) {
-    ioServer.sendInd('error', { msg: msg });
-    console.log(chalk.red('[         error ] ') + msg);
-}
-
-function devIncomingInd (dev) {
-     ioServer.sendInd('devIncoming', { dev: dev });
-    console.log(chalk.yellow('[   devIncoming ] ') + '@' + dev.permAddr);
-}
-
-function devStatusInd (permAddr, status) {
-    ioServer.sendInd('devStatus', { permAddr: permAddr, status: status });
-
-    if (status === 'online')
-        status = chalk.green(status);
-    else 
-        status = chalk.red(status);
-
-    console.log(chalk.magenta('[     devStatus ] ') + '@' + permAddr + ', ' + status);
-}
-
-function attrsChangeInd (permAddr, gad) {
-    ioServer.sendInd('attrsChange', { permAddr: permAddr, gad: gad });
-    console.log(chalk.blue('[   attrsChange ] ') + '@' + permAddr + ', auxId: ' + gad.auxId + ', value: ' + gad.value);
-}
-
 
 /**********************************/
 /* Cook funciton                  */
@@ -331,7 +185,7 @@ function getGadProp (gad) {
             prop.valueName = 'sensorValue';
             break;
         case '0xcc0e':
-            prop.name = 'Fan';
+            prop.name = 'Plug';
             prop.valueName = 'onOff';
             break;
 
