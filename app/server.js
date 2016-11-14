@@ -4,8 +4,6 @@ var fs = require('fs');
 var chalk = require('chalk');
 var _ = require('busyman');
 var BleShepherd = require('ble-shepherd');
-var sivannRelayPlugin = require('bshep-plugin-sivann-relay');
-var sivannWeatherPlugin = require('bshep-plugin-sivann-weatherstation');
 
 // 使用 ioServer 作為與 Web Client 溝通的介面
 // [TODO]
@@ -31,11 +29,13 @@ function serverApp () {
     setLeaveMsg();
 
     // register Req handler
-    ioServer.regReqHdlr('getDevs', function (args, cb) { 
+    // 註冊 permitJoin 處理函式
+    ioServer.regReqHdlr('permitJoin', function (args, cb) { 
         // [TODO]
     });
 
-    ioServer.regReqHdlr('permitJoin', function (args, cb) { 
+    // 註冊 getDevs 處理函式
+    ioServer.regReqHdlr('getDevs', function (args, cb) { 
         // [TODO]
     });
 
@@ -43,32 +43,60 @@ function serverApp () {
         // [TODO]
     });
 
-    // start ble-shepherd
-    var dbPath = path.resolve(__dirname, '../node_modules/ble-shepherd/lib/database/ble.db');
-    fs.exists(dbPath, function (isThere) {
-        if (isThere) { fs.unlink(dbPath); }
-    });
-
-    central.start(); 
-
     // event listeners
     central.on('ready', function () {
+        console.log(chalk.green('[         ready ] '));
+
+        // 當 ble-shepherd 啟動完畢，執行溫控應用
         // [TODO]
     });
 
+    // 監聽 permitJoining 事件，並轉發至 Client端
     central.on('permitJoining', function (timeLeft) {
+        console.log(chalk.green('[ permitJoining ] ') + timeLeft + ' sec');
+
         // [TODO]
     });
 
     central.on('error', function (err) {
-        // [TODO]
+        console.log(chalk.red('[         error ] ') + msg);
     });
 
     central.on('ind', function (msg) {
-        // [TODO]
+        var periph = msg.periph;
+        
+        switch (msg.type) {
+            /*** devIncoming      ***/
+            // 監聽 devIncoming 事件，並轉發至 Client端
+            case 'devIncoming':
+                console.log(chalk.yellow('[   devIncoming ] ') + '@' + dev.permAddr);
+
+                // [TODO]
+                break;
+
+            /*** devStatus        ***/
+            // 監聽 devStatus 事件，並轉發至 Client端
+            case 'devStatus':
+                // [TODO]
+                break;
+
+            /*** attrChange      ***/
+            case 'attChange':
+                // [TODO]                
+                break;
+        }
     });
 
-    
+    // 清除 ble-shepherd 資料庫中的檔案
+    var dbPath = '../node_modules/ble-shepherd/lib/database/ble.db';
+
+    dbPath = path.resolve(__dirname, dbPath);
+    fs.exists(dbPath, function (isThere) {
+        if (isThere) { fs.unlink(dbPath); }
+    });
+
+    // 啟動 ble-shepherd
+    // [TODO]
 }
 
 
@@ -76,10 +104,10 @@ function serverApp () {
 /* welcome function               */
 /**********************************/
 function showWelcomeMsg() {
-var blePart1 = chalk.blue('       ___   __    ____      ____ __ __ ____ ___   __ __ ____ ___   ___ '),
-    blePart2 = chalk.blue('      / _ ) / /   / __/____ / __// // // __// _ \\ / // // __// _ \\ / _ \\'),
-    blePart3 = chalk.blue('     / _  |/ /__ / _/ /___/_\\ \\ / _  // _/ / ___// _  // _/ / , _// // /'),
-    blePart4 = chalk.blue('    /____//____//___/     /___//_//_//___//_/   /_//_//___//_/|_|/____/ ');
+    var blePart1 = chalk.blue('       ___   __    ____      ____ __ __ ____ ___   __ __ ____ ___   ___ '),
+        blePart2 = chalk.blue('      / _ ) / /   / __/____ / __// // // __// _ \\ / // // __// _ \\ / _ \\'),
+        blePart3 = chalk.blue('     / _  |/ /__ / _/ /___/_\\ \\ / _  // _/ / ___// _  // _/ / , _// // /'),
+        blePart4 = chalk.blue('    /____//____//___/     /___//_//_//___//_/   /_//_//___//_/|_|/____/ ');
 
     console.log('');
     console.log('');

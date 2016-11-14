@@ -3,7 +3,7 @@ var sivannWeatherPlugin = require('bshep-plugin-sivann-weatherstation');
 
 var relay, weatherStation;
 
-function bleApp () {
+function bleApp (central) {
     var blocker = central.blocker;
 
     central.support('sivannRelay', sivannRelayPlugin);
@@ -78,3 +78,5 @@ function tempChangedHdlr (data) {
         relay.write('0xbb40', '0xcc0e', relayValue);
     }
 }
+
+module.exports = tempCtrlApp;
