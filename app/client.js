@@ -42,15 +42,8 @@ var App = React.createClass({
         var self = this;
 
         ioConnectedDelay(function () {
-            ioClient.sendReq('getDevs', {}, function (err, data) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    self.setState({
-                        devs: data
-                    });
-                } 
-            });
+            // 發送 getDevs 的 request 請求至 Server 端
+            // [TODO]
         });
 
         // 監聽 permitJoining 事件，並改變 component 的狀態

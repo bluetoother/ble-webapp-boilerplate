@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import GridLayout from 'react-grid-layout';
 import {WidthProvider} from 'react-grid-layout';
 
-import {Temperature, Plug, Weather} from '../Card/Card';
+import {Temperature, Relay, Weather} from '../Card/Card';
 
 var ReactGridLayout = WidthProvider(GridLayout);
 
@@ -31,10 +31,10 @@ var CardBlock = React.createClass({
                 cardProps.dataGrid = {x: 2, y: 0, w: 2, h: 2};
                 card = (<Temperature enable={enable} temp={value} />);
                 break;
-            case 'Plug':
+            case 'Relay':
                 cardProps.key = 'smallCard0';
                 cardProps.dataGrid = {x: 4, y: 0, w: 1, h: 2};
-                card = (<Plug enable={enable} permAddr={permAddr} auxId={auxId} onOff={value} onClick={this.props.onClick} />);
+                card = (<Relay enable={enable} permAddr={permAddr} auxId={auxId} onOff={value} onClick={this.props.onClick} />);
                 break;
         }
 

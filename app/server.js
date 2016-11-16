@@ -59,17 +59,17 @@ function serverApp () {
     });
 
     central.on('error', function (err) {
-        console.log(chalk.red('[         error ] ') + msg);
+        console.log(chalk.red('[         error ] ') + err.message);
     });
 
     central.on('ind', function (msg) {
-        var periph = msg.periph;
+        var dev = msg.periph;
         
         switch (msg.type) {
             /*** devIncoming      ***/
             // 監聽 devIncoming 事件，並轉發至 Client端
             case 'devIncoming':
-                console.log(chalk.yellow('[   devIncoming ] ') + '@' + dev.permAddr);
+                console.log(chalk.yellow('[   devIncoming ] ') + '@' + dev.addr);
 
                 // [TODO]
                 break;
@@ -77,6 +77,15 @@ function serverApp () {
             /*** devStatus        ***/
             // 監聽 devStatus 事件，並轉發至 Client端
             case 'devStatus':
+                var status = msg.data;
+
+                if (status === 'online')
+                    status = chalk.green(status);
+                else 
+                    status = chalk.red(status);
+
+                console.log(chalk.magenta('[     devStatus ] ') + '@' + dev.addr + ', ' + status);
+
                 // [TODO]
                 break;
 
@@ -213,7 +222,7 @@ function getGadProp (gad) {
             prop.valueName = 'sensorValue';
             break;
         case '0xcc0e':
-            prop.name = 'Plug';
+            prop.name = 'Relay';
             prop.valueName = 'onOff';
             break;
 

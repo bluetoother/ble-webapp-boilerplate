@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import TemperatureIcon from '../Icons/TemperatureIcon';
 
 var bgColor = "#F5D76E",
     bgColorDisabled = "#BDBDBD";

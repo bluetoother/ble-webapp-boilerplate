@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import PlugOnIcon from '../Icons/PlugOnIcon';
 import PlugOffIcon from '../Icons/PlugOffIcon';
 
-const Plug = React.createClass({
+const Relay = React.createClass({
     propTypes: {
         enable: PropTypes.bool.isRequired,
         onOff: PropTypes.bool.isRequired,
@@ -14,7 +14,7 @@ const Plug = React.createClass({
         let enable = !!this.props.enable;
         let onOff = !!this.props.onOff;
         let onClick = enable ? this.props.onClick : function () {
-            console.log('Plug clicked');
+            console.log('Relay clicked');
         };
 
         // background color 與 fg color 會根據裝置的網路連線狀態有所不同
@@ -29,4 +29,4 @@ const Plug = React.createClass({
     }
 });
 
-export default Plug;
+export default Relay;
