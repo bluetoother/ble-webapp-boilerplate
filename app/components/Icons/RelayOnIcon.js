@@ -3,7 +3,7 @@ import React from 'react';
 export default function (props) {
     return (
         <div style={{position: "absolute", top: "0", bottom: "0", left: "0", right: "0", margin: "auto", width: '60%', height: '60%'}}>
-            <svg style={props.style} fill={props.fill} height="100%" viewBox="0 0 24 24" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <svg fill="white" height="100%" viewBox="0 0 24 24" width="100%" xmlns="http://www.w3.org/2000/svg">
                 <g>
                     <path d="M0 0h24v24H0z" fill="none"/>
                     <g>

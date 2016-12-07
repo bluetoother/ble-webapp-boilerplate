@@ -2,9 +2,7 @@ import request from 'superagent';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import injectTapEventPlugin from 'react-tap-event-plugin';
-
-import ioClient from './helpers/ioClient';
+import io from 'socket.io-client';
 
 import NavBar from './components/NavBar/NavBar';
 import CardBlock from './components/CardBlock/CardBlock';
@@ -12,20 +10,8 @@ import CardBlock from './components/CardBlock/CardBlock';
 var title = 'ble-shepherd',
     permitJoinTime = 60;
 
-ioClient.start('http://' + window.location.hostname + ':3030');
+var rpcClient = io('http://' + window.location.hostname + ':3030');
 
-/*********************************************/
-/* Private Functions                         */
-/*********************************************/
-function ioConnectedDelay (callback) {
-    if (ioClient._connected) {
-        callback();
-    } else {
-        setTimeout(function () {
-            ioConnectedDelay(callback);
-        }, 1000);
-    }
-}
 
 /*********************************************/
 /* App component                             */
@@ -38,46 +24,35 @@ var App = React.createClass({
         };
     },
 
+    permitJoiningHdlr: function (data) {
+        // [TODO]
+    },
+
+    devIncomingHdlr: function (data) {
+        // [TODO]
+    },
+
+    devStatusHdlr: function (data) {
+        // [TODO]
+    },
+
+    attChangeHdlr: function (data) {
+        // [TODO]
+    },
+
     componentDidMount: function () {
         var self = this;
 
-        ioConnectedDelay(function () {
-            // 發送 getDevs 的 request 請求至 Server 端
-            // [TODO]
-        });
-
-        // 監聽 permitJoining 事件，並改變 component 的狀態
-        ioClient.on('permitJoining', function (msg) {
-            // msg = { timeLeft }
-            // [TODO]
-        });
-
-        // 監聽 devIncoming 事件，並改變 component 的狀態
-        ioClient.on('devIncoming', function (msg) {
-            // msg =  { dev }
-            // [TODO]
-        });
-
-        // 監聽 devStatus 事件，並改變 component 的狀態
-        ioClient.on('devStatus', function (msg) {
-            // msg = { permAddr, status }
-            // [TODO]
-        });
-
-        // 監聽 attrsChange 事件，並改變 component 的狀態
-        ioClient.on('attrsChange', function (msg) {
-            // msg = { permAddr, gad } 
-            // [TODO]
-        });
+        // 監聽 server 發射的 ind 事件，並使用分派器處理
+        // [TODO]
     },
 
-    // 發送 permitJoin 的 request 請求至 Server 端
+    // 需傳入 PERMITJOIN 按鈕的 callback
     onPermitCallback: function () {
         // [TODO]
     },
 
-    // 發送 write 的 request 請求至 Server 端
-    onWriteCallback: function (permAddr, auxId, value) {
+    onWriteCallback: function (addr, sid, cid, value) {
         // [TODO]
     },
 
@@ -85,8 +60,8 @@ var App = React.createClass({
         return (
             <MuiThemeProvider>
                 <div>
-                    <NavBar title={this.props.title} timeLeft={this.state.timeLeft} onClick={this.onPermitCallback} />
-                    <CardBlock devs={this.state.devs} onClick={this.onWriteCallback}/>
+                    <NavBar title={this.props.title} timeLeft={0} onClick={function(){}}  />
+                    <CardBlock devs={{}}/>
                 </div>     
             </MuiThemeProvider>
         );

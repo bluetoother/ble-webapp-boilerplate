@@ -1,122 +1,100 @@
-var http = require('http');
 var path = require('path');
 var fs = require('fs');
 var chalk = require('chalk');
-var _ = require('busyman');
-var BleShepherd = require('ble-shepherd');
 
-// 使用 ioServer 作為與 Web Client 溝通的介面
+// Machine Server
 // [TODO]
-// 溫控系統的應用程式
+// RPC Server 啟動函式
 // [TODO]
-
-// 建立 central
-// [TODO]
-// 建立 HTTP Server
+// HTTP Server 啟動函式
 // [TODO]
 
-server.listen(3030);
-
-// 啟動 ioServer
+// 載入溫控系統應用
 // [TODO]
 
+// 新增 central 實例
+// [TODO]
 
-function serverApp () {
-    // show Welcome Msg               
-    showWelcomeMsg();
+var rpcServer,
+    httpServer;
 
-    // set Leave Msg
-    setLeaveMsg();
-
-    // register Req handler
-    // 註冊 permitJoin 處理函式
-    ioServer.regReqHdlr('permitJoin', function (args, cb) { 
-        // [TODO]
-    });
-
-    // 註冊 getDevs 處理函式
-    ioServer.regReqHdlr('getDevs', function (args, cb) { 
-        // [TODO]
-    });
-
-    ioServer.regReqHdlr('write', function (args, cb) { 
-        // [TODO]
-    });
-
-    // event listeners
-    central.on('ready', function () {
-        console.log(chalk.green('[         ready ] '));
-
-        // 當 ble-shepherd 啟動完畢，執行溫控應用
-        // [TODO]
-    });
-
-    // 監聽 permitJoining 事件，並轉發至 Client端
-    central.on('permitJoining', function (timeLeft) {
-        console.log(chalk.green('[ permitJoining ] ') + timeLeft + ' sec');
-
-        // [TODO]
-    });
-
-    central.on('error', function (err) {
-        console.log(chalk.red('[         error ] ') + err.message);
-    });
-
-    central.on('ind', function (msg) {
-        var dev = msg.periph;
-        
-        switch (msg.type) {
-            /*** devIncoming      ***/
-            // 監聽 devIncoming 事件，並轉發至 Client端
-            case 'devIncoming':
-                console.log(chalk.yellow('[   devIncoming ] ') + '@' + dev.addr);
-
-                // [TODO]
-                break;
-
-            /*** devStatus        ***/
-            // 監聽 devStatus 事件，並轉發至 Client端
-            case 'devStatus':
-                var status = msg.data;
-
-                if (status === 'online')
-                    status = chalk.green(status);
-                else 
-                    status = chalk.red(status);
-
-                console.log(chalk.magenta('[     devStatus ] ') + '@' + dev.addr + ', ' + status);
-
-                // [TODO]
-                break;
-
-            /*** attrChange      ***/
-            case 'attChange':
-                // [TODO]                
-                break;
-        }
-    });
-
-    // 清除 ble-shepherd 資料庫中的檔案
-    var dbPath = '../node_modules/ble-shepherd/lib/database/ble.db';
-
-    dbPath = path.resolve(__dirname, dbPath);
+function start () {
+    var dbPath = path.resolve(__dirname, '../node_modules/ble-shepherd/lib/database/ble.db');
     fs.exists(dbPath, function (isThere) {
         if (isThere) { fs.unlink(dbPath); }
     });
 
-    // 啟動 ble-shepherd
+    showWelcomeMsg();
+    setLeaveMsg();
+
+    // 依序啟動 Machine Server, RPC Server 和 HTTP Server
+    // [TODO]  
+
+    // 需要轉接 Machine Server 的事件至 Web Client 端
     // [TODO]
 }
 
+
+/**********************************************/
+/* RPC Client Request Handler                 */
+/**********************************************/
+// 實作 Web Client 請求事件的處理函式, 
+function clientReqHdlr (msg) {
+    // [TODO]
+}
+
+/**********************************************/
+/* Machine Server Event Handler               */
+/**********************************************/
+function errorEvtHdlr (err) {
+    console.log(chalk.red('[         error ] ') + err.message);
+    rpcServer.emit('error', { msg: err.message });
+}
+
+// 轉發 permitJoining 事件至 Web Client 端
+function permitJoiningEvtHdlr (timeLeft) {
+    console.log(chalk.green('[ permitJoining ] ') + timeLeft + ' sec');
+
+    // [TODO]
+}
+
+// ind 事件為周邊裝置相關的所有事件，使用分派器處理
+function indEvtHdlr (msg) {
+    // [TODO]
+}
+
+/**********************************************/
+/* Peripheral Event Handler               */
+/**********************************************/
+function devIncomingHdlr (devInfo) {
+    console.log(chalk.yellow('[   devIncoming ] ') + '@' + devInfo.addr);
+    
+    // [TODO]
+}
+
+function devStatusHdlr (devInfo, status) {
+    if (devInfo.status === 'disc') return;
+
+    if (status === 'online')
+        status = chalk.green(status);
+    else 
+        status = chalk.red(status);
+
+    // [TODO]
+} 
+
+function attChangeHdlr (devInfo, charInfo) {
+    // [TODO]
+}
 
 /**********************************/
 /* welcome function               */
 /**********************************/
 function showWelcomeMsg() {
-    var blePart1 = chalk.blue('       ___   __    ____      ____ __ __ ____ ___   __ __ ____ ___   ___ '),
-        blePart2 = chalk.blue('      / _ ) / /   / __/____ / __// // // __// _ \\ / // // __// _ \\ / _ \\'),
-        blePart3 = chalk.blue('     / _  |/ /__ / _/ /___/_\\ \\ / _  // _/ / ___// _  // _/ / , _// // /'),
-        blePart4 = chalk.blue('    /____//____//___/     /___//_//_//___//_/   /_//_//___//_/|_|/____/ ');
+var blePart1 = chalk.blue('       ___   __    ____      ____ __ __ ____ ___   __ __ ____ ___   ___ '),
+    blePart2 = chalk.blue('      / _ ) / /   / __/____ / __// // // __// _ \\ / // // __// _ \\ / _ \\'),
+    blePart3 = chalk.blue('     / _  |/ /__ / _/ /___/_\\ \\ / _  // _/ / ___// _  // _/ / , _// // /'),
+    blePart4 = chalk.blue('    /____//____//___/     /___//_//_//___//_/   /_//_//___//_/|_|/____/ ');
 
     console.log('');
     console.log('');
@@ -162,75 +140,6 @@ function setLeaveMsg() {
     process.on('SIGINT', showLeaveMessage);
 }
 
-/**********************************/
-/* Cook funciton                  */
-/**********************************/
-function cookRawDev (dev) {
-    var cooked = {
-            permAddr: dev.addr,
-            status: dev.status,
-            gads: {}
-        };
 
-    _.forEach(dev.dump().servList, function (serv) {
-        _.forEach(serv.charList, function (char) {
-            var cookedGad = cookRawGad(char, serv.uuid);
 
-            if (!_.isNil(cookedGad)) {
-                cooked.gads[cookedGad.auxId] = cookedGad;
-                if (dev._controller)
-                    dev.configNotify(serv.uuid, char.handle, true);
-            }
-        });
-    });
-
-    return cooked;
-}
-
-function cookRawGad (gad, sid) {
-    var cooked = {
-            type: null,
-            auxId: null,
-            value: null
-        },
-        gadInfo = getGadProp(gad),
-        gadValue;
-
-    if (!gadInfo) return;
-
-    gadValue = gad.value[gadInfo.valueName];
-
-    if (_.isNumber(gadValue))
-        gadValue = Math.round(gadValue);
-
-    cooked.type = gadInfo.name;
-    cooked.auxId = sid + '.' + gad.uuid + '.' + gad.handle;
-    cooked.value = gadValue;
-
-    return cooked;
-}
-
-function getGadProp (gad) {
-    var prop = {
-            name: null,
-            valueName: null
-        };
-
-    switch (gad.uuid) {
-        case '0xcc07':
-            prop.name = 'Temperature';
-            prop.valueName = 'sensorValue';
-            break;
-        case '0xcc0e':
-            prop.name = 'Relay';
-            prop.valueName = 'onOff';
-            break;
-
-        default:
-            return;
-    }
-
-    return prop;
-}
-
-module.exports = serverApp;
+module.exports = start;

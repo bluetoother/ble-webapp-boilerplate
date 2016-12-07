@@ -1,9 +1,14 @@
 var sivannRelayPlugin = require('bshep-plugin-sivann-relay');
 var sivannWeatherPlugin = require('bshep-plugin-sivann-weatherstation');
+var ThingSpeakClient = require('thingspeakclient');
 
 var relay, weatherStation;
 
-function bleApp (central) {
+var client = new ThingSpeakClient();
+
+client.attachChannel(180911, { writeKey:'R5PJ7OQOD7L2HFEN', readKey:'WHT3JMH0X9NQWZQD'});
+
+function tempCtrlApp (central) {
     var blocker = central.blocker;
 
     central.support('sivannRelay', sivannRelayPlugin);
@@ -21,14 +26,14 @@ function bleApp (central) {
                 // 裝置加入網路
                 // 你可以開始操作入網裝置        
                 if (dev.name === 'sivannRelay') {
-                	relay = dev;
+                    relay = dev;
 
-                    setInterval(function () {
-                        var relayValue = relay.dump('0xbb40', '0xcc0e').value;
+                    // setInterval(function () {
+                    //     var relayValue = relay.dump('0xbb40', '0xcc0e').value;
 
-                        relayValue.onOff = !relayValue.onOff;
-                        relay.write('0xbb40', '0xcc0e', relayValue);
-                    }, 5000);                    
+                    //     relayValue.onOff = !relayValue.onOff;
+                    //     relay.write('0xbb40', '0xcc0e', relayValue);
+                    // }, 5000);                    
                 }
 
                 if (dev.name === 'sivannWeather') {
@@ -36,23 +41,31 @@ function bleApp (central) {
                     weatherStation = dev;
                     
                     // 當 weather station 入網時，讀取當下溫度值
-               		weatherStation.read('0xbb80', '0xcc07', function (err, data) {
-                        console.log('Temperature value: ' + data.sensorValue);
+                    weatherStation.read('0xbb80', '0xcc07', function (err, data) {
+                        // console.log('Temperature value: ' + data.sensorValue);
                     });
 
-             		// 讓 weather station 定時回報溫度值
+                    // 讓 weather station 定時回報溫度值
                     weatherStation.configNotify('0xbb80', '0xcc07', true, function (err) {
-                        console.log('setting success');
+                        // console.log('setting success');
                     });
                     
-             		// 為回報溫度的 characteristic 註冊一隻處理函式
+                    // 為回報溫度的 characteristic 註冊一隻處理函式
                     weatherStation.onNotified('0xbb80', '0xcc07', tempChangedHdlr); 
+
+                    setInterval(function () {
+                        if (weatherStation.status !== 'online') return;
+
+                        weatherStation.read('0xbb80', '0xcc07', function (err, data) {
+                            client.updateChannel(180911, { field1: data.sensorValue }, function(err, resp) {
+
+                            });
+                        });
+                    }, 15000);
                 }
                 break;
 
             case 'attNotify': 
-                if (dev.addr === '0x20c38ff19403') return;
-                console.log(msg.data);
                 break;
             case 'attChange':
                 // console.log(msg.data);
