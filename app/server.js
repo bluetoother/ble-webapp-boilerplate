@@ -84,6 +84,15 @@ function devStatusHdlr (devInfo, status) {
 } 
 
 function attChangeHdlr (devInfo, charInfo) {
+    var oid = bipso.uo(charInfo.cid.uuid),
+        value;
+
+    if (oid === 'temperature') value = charInfo.value.sensorValue.toFixed(2);
+    if (oid === 'pwrCtrl') value = charInfo.value.onOff;
+    if (value)
+        console.log(chalk.blue('[   attrsChange ] ') + '@' + devInfo.addr + 
+            ', type: ' + oid + ', value: ' + value);
+    
     // [TODO]
 }
 

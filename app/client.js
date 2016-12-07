@@ -61,7 +61,7 @@ var App = React.createClass({
             <MuiThemeProvider>
                 <div>
                     <NavBar title={this.props.title} timeLeft={0} onClick={function(){}}  />
-                    <CardBlock devs={{}}/>
+                    <CardBlock devs={{}} onClick={function(){}}/>
                 </div>     
             </MuiThemeProvider>
         );

@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
-import RealyOnIcon from '../Icons/RelayOnIcon';
-import RealyOffIcon from '../Icons/RelayOffIcon';
+import RelayOnIcon from '../Icons/RelayOnIcon';
+import RelayOffIcon from '../Icons/RelayOffIcon';
 
 const Relay = React.createClass({
     propTypes: {
