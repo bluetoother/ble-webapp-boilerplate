@@ -7,8 +7,6 @@ const Relay = React.createClass({
         // [TODO]
     },
     render: function () {
-
-
         return (
             <div style={{width: '100%', height: '100%', backgroundColor: '#72E599'}}>
                 // [TODO]

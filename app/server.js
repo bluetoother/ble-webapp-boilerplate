@@ -1,6 +1,7 @@
 var path = require('path');
 var fs = require('fs');
 var chalk = require('chalk');
+var bipso = require('bipso');
 
 // Machine Server
 // [TODO]
@@ -73,12 +74,14 @@ function devIncomingHdlr (devInfo) {
 }
 
 function devStatusHdlr (devInfo, status) {
-    if (devInfo.status === 'disc') return;
-
     if (status === 'online')
         status = chalk.green(status);
     else 
         status = chalk.red(status);
+
+    console.log(chalk.magenta('[     devStatus ] ') + '@' + devInfo.addr + ', ' + status);
+
+    if (devInfo.status === 'disc') return;
 
     // [TODO]
 } 
