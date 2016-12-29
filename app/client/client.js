@@ -39,7 +39,7 @@ var App = React.createClass({
 
     getDevs: function () {
         // [TODO]
-    };
+    },
 
     permitJoiningHdlr: function (data) {
         // [TODO]
