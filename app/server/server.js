@@ -10,17 +10,20 @@ var bipso = require('bipso');
 // HTTP Server 啟動函式
 // [TODO]
 
+// Client Request Handler
+// [TODO]
+// BLE Machine Network Handlers
+// [TODO]
+
 // 載入溫控系統應用
 // [TODO]
 
-// 新增 central 實例
-// [TODO]
-
-var rpcServer,
+var central,
+    rpcServer,
     httpServer;
 
 function start () {
-    var dbPath = path.resolve(__dirname, '../node_modules/ble-shepherd/lib/database/ble.db');
+    var dbPath = path.resolve(__dirname, '../../node_modules/ble-shepherd/lib/database/ble.db');
     fs.exists(dbPath, function (isThere) {
         if (isThere) { fs.unlink(dbPath); }
     });
@@ -35,69 +38,6 @@ function start () {
     // [TODO]
 }
 
-
-/**********************************************/
-/* RPC Client Request Handler                 */
-/**********************************************/
-// 實作 Web Client 請求事件的處理函式, 
-function clientReqHdlr (msg) {
-    // [TODO]
-}
-
-/**********************************************/
-/* Machine Server Event Handler               */
-/**********************************************/
-function errorEvtHdlr (err) {
-    console.log(chalk.red('[         error ] ') + err.message);
-    rpcServer.emit('error', { msg: err.message });
-}
-
-// 轉發 permitJoining 事件至 Web Client 端
-function permitJoiningEvtHdlr (timeLeft) {
-    console.log(chalk.green('[ permitJoining ] ') + timeLeft + ' sec');
-
-    // [TODO]
-}
-
-// ind 事件為周邊裝置相關的所有事件，使用分派器處理
-function indEvtHdlr (msg) {
-    // [TODO]
-}
-
-/**********************************************/
-/* Peripheral Event Handler               */
-/**********************************************/
-function devIncomingHdlr (devInfo) {
-    console.log(chalk.yellow('[   devIncoming ] ') + '@' + devInfo.addr);
-    
-    // [TODO]
-}
-
-function devStatusHdlr (devInfo, status) {
-    if (status === 'online')
-        status = chalk.green(status);
-    else 
-        status = chalk.red(status);
-
-    console.log(chalk.magenta('[     devStatus ] ') + '@' + devInfo.addr + ', ' + status);
-
-    if (devInfo.status === 'disc') return;
-
-    // [TODO]
-} 
-
-function attChangeHdlr (devInfo, charInfo) {
-    var oid = bipso.uo(charInfo.cid.uuid),
-        value;
-
-    if (oid === 'temperature') value = charInfo.value.sensorValue.toFixed(2);
-    if (oid === 'pwrCtrl') value = charInfo.value.onOff;
-    if (value)
-        console.log(chalk.blue('[   attrsChange ] ') + '@' + devInfo.addr + 
-            ', type: ' + oid + ', value: ' + value);
-    
-    // [TODO]
-}
 
 /**********************************/
 /* welcome function               */
@@ -151,7 +91,5 @@ function setLeaveMsg() {
 
     process.on('SIGINT', showLeaveMessage);
 }
-
-
 
 module.exports = start;

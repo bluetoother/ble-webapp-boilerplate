@@ -52,7 +52,8 @@ var CardBlock = React.createClass({
     },
 
     render: function () {
-        var allCards = [],
+        var self = this,
+            allCards = [],
             rowHeight = this.getRowHeight(),
             devs = this.props.devs;
 

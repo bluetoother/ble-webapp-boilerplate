@@ -7,7 +7,7 @@ var isDeveloping = process.env.NODE_ENV !== 'production',
     app = express();
 
 if (isDeveloping) {
-    var config = require('../webpack.config'),
+    var config = require('../../../webpack.config'),
         compiler = require('webpack')(config),
         middleware = require('webpack-dev-middleware')(compiler, {
         publicPath: config.output.publicPath,
