@@ -3,9 +3,14 @@ import TemperatureIcon from '../Icons/TemperatureIcon';
 
 const Temperature = React.createClass({
     propTypes: {
-        // [TODO]
+        enable: PropTypes.bool.isRequired,
+        value: PropTypes.object.isRequired,
+        addr: PropTypes.string.isRequired,
+        servUuid: PropTypes.string.isRequired,
+        charUuid: PropTypes.string.isRequired
     },
     render: function() {
+        // [TODO]
         return (
             <div style={{width: "100%", height: "100%", backgroundColor: "#F5D76E"}}>
                 <div style={{float: "left", width: "50%", height: "100%"}}>

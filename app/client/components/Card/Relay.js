@@ -4,9 +4,16 @@ import RelayOffIcon from '../Icons/RelayOffIcon';
 
 const Relay = React.createClass({
     propTypes: {
-        // [TODO]
+        enable: PropTypes.bool.isRequired,
+        value: PropTypes.object.isRequired,
+        onClick: PropTypes.func.isRequired,
+        addr: PropTypes.string.isRequired,
+        servUuid: PropTypes.string.isRequired,
+        charUuid: PropTypes.string.isRequired
     },
     render: function () {
+        // [TODO]
+        
         return (
             <div style={{width: '100%', height: '100%', backgroundColor: '#72E599'}}>
                 // [TODO]

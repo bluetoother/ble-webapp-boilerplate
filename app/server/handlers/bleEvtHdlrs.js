@@ -37,14 +37,11 @@ function devIncomingHdlr (rpcServer, devInfo) {
 }
 
 function devStatusHdlr (rpcServer, devInfo, status) {
-    if (status === 'online')
-        status = chalk.green(status);
-    else 
-        status = chalk.red(status);
-
-    console.log(chalk.magenta('[     devStatus ] ') + '@' + devInfo.addr + ', ' + status);
+    var colorStatus = status === 'online' ? chalk.green(status) : chalk.red(status);
+    console.log(chalk.magenta('[     devStatus ] ') + '@' + devInfo.addr + ', ' + colorStatus);
 
     if (devInfo.status === 'disc') return;
+    devInfo.status = status;
 
     // [TODO]
 } 
