@@ -22,9 +22,22 @@ if (isDeveloping) {
         }
     });
 
-    // [TODO]
+    app.use(middleware);
+    app.use(require('webpack-hot-middleware')(compiler));
+    app.get('*', function response(req, res) {
+        fs.readFile(path.join(__dirname, '../../../', 'build/index.html'), 
+            function (err, data) {
+                res.end(data);
+        });    
+    });
 } else {
-    // [TODO]
+    app.use(express.static(path.join(__dirname, '../../../', 'build')));
+    app.get('*', function response(req, res) {
+        fs.readFile(path.join(__dirname, '../../../', 'build/index.html'), 
+            function (err, data) {
+                res.end(data);
+        });    
+    });
 }
 
 function start () {

@@ -24,7 +24,23 @@ function permitJoiningEvtHdlr (rpcServer, timeLeft) {
 
 // ind 事件為周邊裝置相關的所有事件，使用分派器處理
 function indEvtHdlr (rpcServer, msg) {
-    // [TODO]
+    var dev = msg.periph,
+        devInfo = dev.dump();
+        
+    switch (msg.type) {
+        case 'devIncoming':
+            // [TODO]
+            break;
+
+        case 'devStatus':
+            // [TODO]
+            break;
+
+        case 'attChange':
+            // [TODO]
+            break;
+    }
+
 }
 
 /**********************************************/

@@ -12,6 +12,7 @@ const Relay = React.createClass({
         charUuid: PropTypes.string.isRequired
     },
     render: function () {
+        let icon = this.props.onOff ? <RelayOnIcon /> : <RelayOffIcon />;
         // [TODO]
         
         return (

@@ -24,7 +24,16 @@ var CardBlock = React.createClass({
 
         enable = (status === 'online') ? true : false;
 
-        // [TODO]
+        switch (type) {
+            case 'temperature':
+                // [TODO]
+                break;
+            case 'pwrCtrl':
+                // [TODO]
+                break;
+            default:
+                return;
+        }
 
         return (
             <div key={cardProps.key} data-grid={cardProps.dataGrid}>
@@ -58,7 +67,14 @@ var CardBlock = React.createClass({
             devs = this.props.devs;
 
         // 遍歷 device 中的所有 Characteristic，獲取相關資訊
-        // [TODO]
+        for (var addr in devs) {
+            var devInfo = devs[addr];
+            devInfo.servList.forEach(function (servInfo) {
+                servInfo.charList.forEach(function (charInfo) {
+                    // [TODO]
+                });
+            });    
+        }        
 
         return (
             <div style={{margin:'1% 0%'}}>
